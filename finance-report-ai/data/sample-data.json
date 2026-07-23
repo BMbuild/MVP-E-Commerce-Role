@@ -1,0 +1,17 @@
+{
+  "company": "Northwind Labs",
+  "period": "Q2 2026",
+  "accounts": [
+    { "name": "Revenue", "value": 1250000, "group": "income" },
+    { "name": "Cost of Goods Sold", "value": 450000, "group": "expense" },
+    { "name": "Operating Expenses", "value": 280000, "group": "expense" },
+    { "name": "Net Income", "value": 520000, "group": "income" },
+    { "name": "Cash", "value": 320000, "group": "asset" },
+    { "name": "Accounts Receivable", "value": 180000, "group": "asset" },
+    { "name": "Accounts Payable", "value": 95000, "group": "liability" },
+    { "name": "Equity", "value": 405000, "group": "equity" },
+    { "name": "Operating Cash Flow", "value": 620000, "group": "cash_inflow" },
+    { "name": "Investing Cash Flow", "value": -150000, "group": "cash_outflow" },
+    { "name": "Financing Cash Flow", "value": -50000, "group": "cash_outflow" }
+  ]
+}

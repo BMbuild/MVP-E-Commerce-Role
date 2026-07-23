@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinanceReport AI</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-bg" aria-hidden="true"></div>
+    <div class="app-shell">
+      <nav class="top-nav" aria-label="Primary">
+        <div class="brand-block">
+          <div class="brand-icon">📊</div>
+          <div>
+            <p class="brand-name">FinanceReport AI</p>
+            <p class="brand-subtitle">Client-side financial reporting</p>
+          </div>
+        </div>
+        <a class="nav-link" href="https://github.com" target="_blank" rel="noreferrer" aria-label="Visit FinanceReport AI on GitHub">GitHub</a>
+      </nav>
+
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">⚡ AI-ready financial reporting workspace</p>
+          <h1>Turn raw financial data into a polished report in minutes.</h1>
+          <p class="subtitle">
+            Upload financial accounts, choose a report type, and present insights with a professional SaaS-style experience.
+          </p>
+          <div class="hero-pills" aria-label="Key highlights">
+            <span>📁 CSV / JSON import</span>
+            <span>📈 Instant report</span>
+            <span>🧠 Clean UI</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <p class="hero-card-title">Ready to explore</p>
+          <div class="hero-card-metric">
+            <strong>3</strong>
+            <span>report formats</span>
+          </div>
+          <div class="hero-card-metric">
+            <strong>100%</strong>
+            <span>client-side</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-grid">
+        <section class="panel control-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Workflow</p>
+              <h2>Generate a report</h2>
+            </div>
+            <div class="panel-icon">🧾</div>
+          </div>
+
+          <label class="field-label" for="uploadData">📂 Upload financial data</label>
+          <input id="uploadData" type="file" accept=".json,.csv" aria-describedby="statusMessage" />
+          <p class="helper-text">Supported formats: JSON and CSV. Each file should contain account names, values, and categories.</p>
+
+          <label class="field-label" for="reportType">📊 Report type</label>
+          <select id="reportType">
+            <option value="income">Income Statement</option>
+            <option value="balance">Balance Sheet</option>
+            <option value="cashflow">Cash Flow Summary</option>
+          </select>
+
+          <div class="button-row">
+            <button id="generateReport" class="primary-btn" type="button">Generate report</button>
+            <button id="loadSample" class="secondary-btn" type="button">Load sample data</button>
+          </div>
+
+          <div id="statusMessage" class="status-message success" role="status" aria-live="polite">
+            Ready to analyze your data.
+          </div>
+        </section>
+
+        <section class="panel results-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Preview</p>
+              <h2>Report output</h2>
+            </div>
+            <div class="panel-icon">📈</div>
+          </div>
+          <div id="dataSummary" class="summary-card"></div>
+          <div id="reportOutput" class="report-output"></div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <p>FinanceReport AI</p>
+      <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="View FinanceReport AI repository on GitHub">View on GitHub</a>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
