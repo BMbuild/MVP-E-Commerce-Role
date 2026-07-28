@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FinanceReport AI</title>
+    <title>Amazon Catalog Insights</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -13,8 +13,8 @@
         <div class="brand-block">
           <div class="brand-icon">📊</div>
           <div>
-            <p class="brand-name">FinanceReport AI</p>
-            <p class="brand-subtitle">Client-side financial reporting</p>
+            <p class="brand-name">Amazon Catalog Insights</p>
+            <p class="brand-subtitle">Client-side product analytics</p>
           </div>
         </div>
         <a class="nav-link" href="https://github.com" target="_blank" rel="noreferrer" aria-label="Visit FinanceReport AI on GitHub">GitHub</a>
@@ -22,26 +22,26 @@
 
       <header class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">⚡ AI-ready financial reporting workspace</p>
-          <h1>Turn raw financial data into a polished report in minutes.</h1>
+          <p class="eyebrow">⚡ AI-ready product analytics workspace</p>
+          <h1>Turn Amazon catalog data into clear product insights.</h1>
           <p class="subtitle">
-            Upload financial accounts, choose a report type, and present insights with a professional SaaS-style experience.
+            Explore pricing, ratings, discounts, and category performance from the Amazon product dataset.
           </p>
           <div class="hero-pills" aria-label="Key highlights">
-            <span>📁 CSV / JSON import</span>
-            <span>📈 Instant report</span>
-            <span>🧠 Clean UI</span>
+            <span>📁 Amazon CSV loaded</span>
+            <span>⭐ Rating insights</span>
+            <span>🏷️ Price analysis</span>
           </div>
         </div>
         <div class="hero-card">
           <p class="hero-card-title">Ready to explore</p>
           <div class="hero-card-metric">
-            <strong>3</strong>
-            <span>report formats</span>
+            <strong>1,465</strong>
+            <span>products to explore</span>
           </div>
           <div class="hero-card-metric">
-            <strong>100%</strong>
-            <span>client-side</span>
+            <strong>16</strong>
+            <span>dataset columns</span>
           </div>
         </div>
       </header>
@@ -51,29 +51,29 @@
           <div class="panel-heading">
             <div>
               <p class="panel-kicker">Workflow</p>
-              <h2>Generate a report</h2>
+          <h2>Explore product data</h2>
             </div>
             <div class="panel-icon">🧾</div>
           </div>
 
-          <label class="field-label" for="uploadData">📂 Upload financial data</label>
+          <label class="field-label" for="uploadData">📂 Upload product data</label>
           <input id="uploadData" type="file" accept=".json,.csv" aria-describedby="statusMessage" />
-          <p class="helper-text">Supported formats: JSON and CSV. Each file should contain account names, values, and categories.</p>
+          <p class="helper-text">The Amazon dataset is loaded by default. Upload a CSV or JSON file to analyze another catalog.</p>
 
-          <label class="field-label" for="reportType">📊 Report type</label>
+          <label class="field-label" for="reportType">📊 Analysis type</label>
           <select id="reportType">
-            <option value="income">Income Statement</option>
-            <option value="balance">Balance Sheet</option>
-            <option value="cashflow">Cash Flow Summary</option>
+            <option value="income">Catalog Overview</option>
+            <option value="balance">Category Analysis</option>
+            <option value="cashflow">Customer Sentiment</option>
           </select>
 
           <div class="button-row">
-            <button id="generateReport" class="primary-btn" type="button">Generate report</button>
-            <button id="loadSample" class="secondary-btn" type="button">Load sample data</button>
+            <button id="generateReport" class="primary-btn" type="button">Generate analysis</button>
+            <button id="loadSample" class="secondary-btn" type="button">Reload Amazon data</button>
           </div>
 
           <div id="statusMessage" class="status-message success" role="status" aria-live="polite">
-            Ready to analyze your data.
+            Ready to analyze the Amazon catalog.
           </div>
         </section>
 
@@ -94,28 +94,28 @@
         <div class="panel-heading">
           <div>
             <p class="panel-kicker">Finance assistant</p>
-            <h2 id="chatTitle">Ask about your numbers</h2>
+            <h2 id="chatTitle">Ask about the catalog</h2>
           </div>
           <div class="panel-icon" aria-hidden="true">💬</div>
         </div>
-        <p class="helper-text">Ask a question about the currently loaded report. Your data stays in this browser.</p>
+        <p class="helper-text">Ask about the loaded products. Your data stays in this browser.</p>
         <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Finance assistant conversation"></div>
         <div class="suggestion-row" aria-label="Suggested questions">
-          <button class="suggestion-btn" type="button" data-question="How profitable are we?">Profitability</button>
-          <button class="suggestion-btn" type="button" data-question="What is our cash position?">Cash position</button>
+          <button class="suggestion-btn" type="button" data-question="What is the average rating?">Average rating</button>
+          <button class="suggestion-btn" type="button" data-question="Which category has the most products?">Top category</button>
           <button class="suggestion-btn" type="button" data-question="What should I watch?">What to watch</button>
         </div>
         <form id="chatForm" class="chat-form">
           <label class="sr-only" for="chatInput">Ask a financial question</label>
-          <input id="chatInput" type="text" maxlength="300" placeholder="e.g. What is our profit margin?" autocomplete="off" />
+          <input id="chatInput" type="text" maxlength="300" placeholder="e.g. Which category has the most products?" autocomplete="off" />
           <button class="primary-btn chat-send" type="submit">Send</button>
         </form>
       </section>
     </div>
 
     <footer class="site-footer">
-      <p>FinanceReport AI</p>
-      <a href="https://github.com" target="_blank" rel="noreferrer" aria-label="View FinanceReport AI repository on GitHub">View on GitHub</a>
+      <p>Amazon Catalog Insights</p>
+      <a href="https://github.com/BMbuild/MVP-E-Commerce-Role" target="_blank" rel="noreferrer" aria-label="View project repository on GitHub">View on GitHub</a>
     </footer>
 
     <script src="script.js"></script>

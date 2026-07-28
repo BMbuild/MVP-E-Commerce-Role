@@ -1,6 +1,6 @@
-# FinanceReport AI
+# Amazon Catalog Insights
 
-FinanceReport AI is a lightweight, client-side web app designed to help users upload financial data, choose a report format, and generate a polished financial summary in the browser.
+Amazon Catalog Insights is a lightweight, client-side web app that turns the included Amazon product dataset into clear pricing, category, rating, and review insights in the browser.
 
 This project was built as a simple but professional MVP for a GitHub portfolio, with a focus on clarity, responsive UI, accessibility, and clean vanilla JavaScript.
 
@@ -12,10 +12,10 @@ Add screenshots here as the project evolves:
 - Mobile responsive layout
 
 ## Features
-- Upload financial data from JSON or CSV files
-- Choose between an income statement, balance sheet, or cash flow summary
-- Generate a clear financial report with KPIs and insights
-- Use a built-in sample dataset for quick preview
+- Load the bundled `data/amazon.csv` catalog automatically
+- Choose between catalog overview, category analysis, and customer sentiment views
+- Review product count, discounted prices, ratings, discounts, and top categories
+- Ask the local catalog assistant about the loaded data
 - Enjoy a modern, responsive interface with no backend required
 
 ## Technologies used
@@ -28,7 +28,8 @@ Add screenshots here as the project evolves:
 - index.html — app structure and UI sections
 - style.css — responsive styling and modern visual design
 - script.js — data parsing, report generation, and UI logic
-- data/sample-data.json — sample financial dataset
+- data/amazon.csv — Amazon product dataset (1,465 products)
+- data/sample-data.json — legacy sample financial dataset
 - assets/ — space for future icons or images
 
 ## Installation
@@ -48,9 +49,13 @@ http://localhost:8000
 
 ## Usage
 1. Open the app in your browser.
-2. Upload a JSON or CSV file containing financial accounts.
-3. Select the report type you want to generate.
-4. Review the generated report and insights.
+2. Review the automatically loaded Amazon product catalog.
+3. Select the analysis you want to generate.
+4. Ask the assistant about pricing, ratings, discounts, or categories.
+
+## Amazon dataset columns
+
+The dashboard reads `product_id`, `product_name`, `category`, `discounted_price`, `actual_price`, `discount_percentage`, `rating`, `rating_count`, and review metadata from the CSV. It uses the price, discount, rating, rating-count, and category fields in the visual analysis.
 
 ## Accessibility and quality improvements
 - Clear labels and semantic structure
@@ -63,4 +68,3 @@ http://localhost:8000
 - Support drag-and-drop file upload
 - Add export to PDF or CSV
 - Introduce dark mode
-- Improve CSV parsing for more real-world file formats

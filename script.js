@@ -43,21 +43,40 @@ function formatCurrency(value) {
 }
 
 function parseCsv(text) {
-  const rows = text.trim().split(/\r?\n/).filter(Boolean);
+  const rows = [];
+  let row = [];
+  let value = "";
+  let insideQuotes = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    const nextCharacter = text[index + 1];
+    if (character === '"' && insideQuotes && nextCharacter === '"') {
+      value += '"';
+      index += 1;
+    } else if (character === '"') {
+      insideQuotes = !insideQuotes;
+    } else if (character === "," && !insideQuotes) {
+      row.push(value.trim());
+      value = "";
+    } else if ((character === "\n" || character === "\r") && !insideQuotes) {
+      if (character === "\r" && nextCharacter === "\n") index += 1;
+      row.push(value.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = [];
+      value = "";
+    } else {
+      value += character;
+    }
+  }
+  if (value || row.length) {
+    row.push(value.trim());
+    rows.push(row);
+  }
   if (!rows.length) return [];
 
-  const headers = rows[0].split(",").map((header) => header.trim().toLowerCase());
-
-  return rows.slice(1).map((row) => {
-    const values = row.split(",").map((value) => value.trim());
-    const account = {};
-
-    headers.forEach((header, index) => {
-      account[header] = values[index] || "";
-    });
-
-    return account;
-  });
+  const headers = rows[0].map((header) => header.trim().toLowerCase());
+  return rows.slice(1).map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] || ""])));
 }
 
 function normalizeData(rawData) {
@@ -122,6 +141,14 @@ function normalizeData(rawData) {
 
   const csvRows = parseCsv(typeof rawData === "string" ? rawData : "");
   if (csvRows.length) {
+    if (csvRows[0].product_id && csvRows[0].discounted_price) {
+      return {
+        type: "amazon_catalog",
+        company: "Amazon Product Catalog",
+        period: `${csvRows.length.toLocaleString()} products`,
+        products: csvRows
+      };
+    }
     return {
       company: "Uploaded Company",
       period: "Custom Period",
@@ -134,6 +161,97 @@ function normalizeData(rawData) {
   }
 
   return null;
+}
+
+function parsePrice(value) {
+  return Number(String(value || "").replace(/[^0-9.]/g, "")) || 0;
+}
+
+function parsePercent(value) {
+  return Number(String(value || "").replace(/[^0-9.]/g, "")) || 0;
+}
+
+function getCatalogMetrics(products) {
+  const validRatings = products.map((product) => Number(product.rating)).filter((rating) => Number.isFinite(rating));
+  const categories = products.reduce((counts, product) => {
+    const category = (product.category || "Uncategorized").split("|")[0];
+    counts[category] = (counts[category] || 0) + 1;
+    return counts;
+  }, {});
+  const topCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0] || ["Uncategorized", 0];
+  const average = (values) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+  return {
+    productCount: products.length,
+    averagePrice: average(products.map((product) => parsePrice(product.discounted_price)).filter(Boolean)),
+    averageDiscount: average(products.map((product) => parsePercent(product.discount_percentage)).filter(Boolean)),
+    averageRating: average(validRatings),
+    ratingCount: products.reduce((sum, product) => sum + parsePrice(product.rating_count), 0),
+    categoryCount: Object.keys(categories).length,
+    topCategory,
+    categories
+  };
+}
+
+function formatRupees(value) {
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
+}
+
+function renderCatalogSummary(data) {
+  const metrics = getCatalogMetrics(data.products);
+  ui.dataSummary.innerHTML = `
+    <h3>${data.company}</h3>
+    <p><strong>Dataset:</strong> ${data.period} · 16 source columns</p>
+    <div class="metric-grid">
+      <div class="metric-card"><span>Products</span><strong>${metrics.productCount.toLocaleString()}</strong></div>
+      <div class="metric-card"><span>Average price</span><strong>${formatRupees(metrics.averagePrice)}</strong></div>
+      <div class="metric-card"><span>Average rating</span><strong>${metrics.averageRating.toFixed(1)} / 5</strong></div>
+      <div class="metric-card"><span>Average discount</span><strong>${metrics.averageDiscount.toFixed(0)}%</strong></div>
+    </div>
+    <p style="margin-top: 12px; color: var(--muted);">Top category: ${metrics.topCategory[0]} (${metrics.topCategory[1].toLocaleString()} products)</p>`;
+}
+
+function renderCatalogReport(data, reportType) {
+  const metrics = getCatalogMetrics(data.products);
+  const categoryRows = Object.entries(metrics.categories).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topRated = [...data.products].filter((product) => Number(product.rating) >= 4.5).slice(0, 3);
+  let title = "Catalog Overview";
+  let subtitle = "Product and pricing snapshot";
+  let detailItems = [
+    { label: "Average discounted price", value: formatRupees(metrics.averagePrice) },
+    { label: "Customer ratings recorded", value: metrics.ratingCount.toLocaleString("en-IN") }
+  ];
+  let insights = [
+    `${metrics.productCount.toLocaleString()} products are represented across ${metrics.categoryCount} top-level categories.`,
+    `Average customer rating is ${metrics.averageRating.toFixed(1)} out of 5.`,
+    `Products have an average listed discount of ${metrics.averageDiscount.toFixed(0)}%.`
+  ];
+  if (reportType === "balance") {
+    title = "Category Analysis";
+    subtitle = "Catalog concentration";
+    detailItems = categoryRows.slice(0, 2).map(([category, count]) => ({ label: category, value: `${count.toLocaleString()} products` }));
+    insights = categoryRows.map(([category, count]) => `${category} contains ${count.toLocaleString()} products (${((count / metrics.productCount) * 100).toFixed(1)}% of the catalog).`);
+  } else if (reportType === "cashflow") {
+    title = "Customer Sentiment";
+    subtitle = "Ratings and review signals";
+    detailItems = [
+      { label: "Average rating", value: `${metrics.averageRating.toFixed(1)} / 5` },
+      { label: "Ratings captured", value: metrics.ratingCount.toLocaleString("en-IN") }
+    ];
+    insights = topRated.length ? topRated.map((product) => `Highly rated (${product.rating}/5): ${product.product_name.slice(0, 90)}${product.product_name.length > 90 ? "…" : ""}`) : insights;
+  }
+  ui.reportOutput.innerHTML = `
+    <div class="report-card">
+      <div class="report-card-header"><div><h3>${title}</h3><p>${data.company} • ${data.period}</p></div><span class="report-tag">${subtitle}</span></div>
+      <div class="report-kpi-grid">
+        <div class="kpi-card"><span>Products</span><strong>${metrics.productCount.toLocaleString()}</strong></div>
+        <div class="kpi-card"><span>Average price</span><strong>${formatRupees(metrics.averagePrice)}</strong></div>
+        <div class="kpi-card"><span>Average rating</span><strong>${metrics.averageRating.toFixed(1)} / 5</strong></div>
+        <div class="kpi-card"><span>Average discount</span><strong>${metrics.averageDiscount.toFixed(0)}%</strong></div>
+        <div class="kpi-card highlight-card"><span>Top category</span><strong>${metrics.topCategory[0]}</strong></div>
+      </div>
+      <div class="detail-list">${detailItems.map((item) => `<div class="detail-item"><span>${item.label}</span><strong>${item.value}</strong></div>`).join("")}</div>
+      <div class="insights-panel"><div class="insights-title">Insights</div><ul class="insight-list">${insights.map((insight) => `<li>${insight}</li>`).join("")}</ul></div>
+    </div>`;
 }
 
 function getAccountValues(accounts, groups) {
@@ -196,6 +314,10 @@ function buildInsights(metrics, reportType, assets, liabilities, equity) {
 }
 
 function renderSummary(data) {
+  if (data.type === "amazon_catalog") {
+    renderCatalogSummary(data);
+    return;
+  }
   // Render the overview cards shown above the report output.
   const summary = ui.dataSummary;
   const accounts = data.accounts || [];
@@ -232,6 +354,10 @@ function renderSummary(data) {
 }
 
 function renderReport(data, reportType) {
+  if (data.type === "amazon_catalog") {
+    renderCatalogReport(data, reportType);
+    return;
+  }
   // Build the main report card with KPIs and generated insights.
   const output = ui.reportOutput;
   const accounts = data.accounts || [];
@@ -338,21 +464,21 @@ function setStatus(message, isSuccess = true) {
 }
 
 async function loadInitialData() {
-  // Load the bundled sample data on first render.
+  // Load the bundled Amazon catalog on first render.
   try {
-    const response = await fetch("./data/sample-data.json");
-    if (!response.ok) throw new Error("Sample data not found");
-    const data = await response.json();
+    const response = await fetch("./data/amazon.csv");
+    if (!response.ok) throw new Error("Amazon dataset not found");
+    const data = await response.text();
     const parsedData = normalizeData(data);
     appState.data = parsedData || sampleData;
     renderSummary(appState.data);
     renderReport(appState.data, ui.reportTypeSelect.value);
-    setStatus("Sample dataset loaded successfully.");
+    setStatus("Amazon product dataset loaded successfully.");
   } catch (error) {
     appState.data = sampleData;
     renderSummary(appState.data);
     renderReport(appState.data, ui.reportTypeSelect.value);
-    setStatus("Loaded a bundled sample dataset because no server data was available.");
+    setStatus("Loaded a bundled sample dataset because the Amazon dataset was unavailable.");
   }
 }
 
@@ -401,6 +527,23 @@ function appendChatMessage(message, role = "assistant") {
 }
 
 function getChatResponse(question) {
+  if (appState.data.type === "amazon_catalog") {
+    const metrics = getCatalogMetrics(appState.data.products);
+    const normalizedQuestion = question.toLowerCase();
+    if (/rating|review|note|avis/.test(normalizedQuestion)) {
+      return `The catalog averages ${metrics.averageRating.toFixed(1)} out of 5, based on ${metrics.ratingCount.toLocaleString("en-IN")} recorded customer ratings.`;
+    }
+    if (/category|categorie|catégorie|product|produit/.test(normalizedQuestion)) {
+      return `${metrics.topCategory[0]} is the largest top-level category, with ${metrics.topCategory[1].toLocaleString()} of ${metrics.productCount.toLocaleString()} products.`;
+    }
+    if (/price|prix|discount|reduction|réduction/.test(normalizedQuestion)) {
+      return `The average discounted price is ${formatRupees(metrics.averagePrice)} and the average listed discount is ${metrics.averageDiscount.toFixed(0)}%.`;
+    }
+    if (/watch|risk|attention|surveill/.test(normalizedQuestion)) {
+      return `Watch catalog concentration in ${metrics.topCategory[0]}, which represents ${((metrics.topCategory[1] / metrics.productCount) * 100).toFixed(1)}% of listed products, and validate low-rated products before promotion.`;
+    }
+    return `I can help analyze ${metrics.productCount.toLocaleString()} Amazon products: average price (${formatRupees(metrics.averagePrice)}), average rating (${metrics.averageRating.toFixed(1)}/5), discounts, and categories.`;
+  }
   const accounts = appState.data.accounts || [];
   const revenue = getRevenueValue(accounts);
   const expenses = getAccountValues(accounts, ["expense"]);
@@ -444,17 +587,12 @@ function submitChatQuestion(question) {
 }
 
 function initializeChat() {
-  appendChatMessage("Hi — I’m your local finance assistant. Ask me about the financial data currently loaded in this report.");
+  appendChatMessage("Hi — I’m your local catalog assistant. Ask me about product prices, ratings, discounts, or categories.");
 }
 
 ui.fileInput.addEventListener("change", handleFileUpload);
 ui.generateButton.addEventListener("click", generateCurrentReport);
-ui.sampleButton.addEventListener("click", () => {
-  appState.data = sampleData;
-  renderSummary(appState.data);
-  renderReport(appState.data, ui.reportTypeSelect.value);
-  setStatus("Loaded the sample financial dataset.");
-});
+ui.sampleButton.addEventListener("click", loadInitialData);
 ui.reportTypeSelect.addEventListener("change", generateCurrentReport);
 ui.chatForm.addEventListener("submit", (event) => {
   event.preventDefault();
