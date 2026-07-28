@@ -5,7 +5,7 @@
     { "name": "Revenue", "value": 1250000, "group": "income" },
     { "name": "Cost of Goods Sold", "value": 450000, "group": "expense" },
     { "name": "Operating Expenses", "value": 280000, "group": "expense" },
-    { "name": "Net Income", "value": 520000, "group": "income" },
+    { "name": "Net Income", "value": 520000, "group": "net_income" },
     { "name": "Cash", "value": 320000, "group": "asset" },
     { "name": "Accounts Receivable", "value": 180000, "group": "asset" },
     { "name": "Accounts Payable", "value": 95000, "group": "liability" },

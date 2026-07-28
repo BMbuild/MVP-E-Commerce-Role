@@ -5,7 +5,7 @@ const sampleData = {
     { name: "Revenue", value: 1250000, group: "income" },
     { name: "Cost of Goods Sold", value: 450000, group: "expense" },
     { name: "Operating Expenses", value: 280000, group: "expense" },
-    { name: "Net Income", value: 520000, group: "income" },
+    { name: "Net Income", value: 520000, group: "net_income" },
     { name: "Cash", value: 320000, group: "asset" },
     { name: "Accounts Receivable", value: 180000, group: "asset" },
     { name: "Accounts Payable", value: 95000, group: "liability" },
@@ -27,7 +27,11 @@ const ui = {
   sampleButton: document.getElementById("loadSample"),
   statusMessage: document.getElementById("statusMessage"),
   dataSummary: document.getElementById("dataSummary"),
-  reportOutput: document.getElementById("reportOutput")
+  reportOutput: document.getElementById("reportOutput"),
+  chatForm: document.getElementById("chatForm"),
+  chatInput: document.getElementById("chatInput"),
+  chatMessages: document.getElementById("chatMessages"),
+  suggestionButtons: document.querySelectorAll(".suggestion-btn")
 };
 
 function formatCurrency(value) {
@@ -138,9 +142,15 @@ function getAccountValues(accounts, groups) {
     .reduce((sum, account) => sum + Number(account.value || 0), 0);
 }
 
+function getRevenueValue(accounts) {
+  return accounts
+    .filter((account) => account.group === "income" && !/net\s*(income|profit)|profit/i.test(account.name))
+    .reduce((sum, account) => sum + Number(account.value || 0), 0);
+}
+
 function getIncomeMetrics(accounts) {
   // Derive a small set of financial KPIs from the uploaded account list.
-  const income = getAccountValues(accounts, ["income"]);
+  const income = getRevenueValue(accounts);
   const expenses = getAccountValues(accounts, ["expense"]);
   const netIncome = income - expenses;
   const margin = income > 0 ? (netIncome / income) * 100 : 0;
@@ -189,7 +199,7 @@ function renderSummary(data) {
   // Render the overview cards shown above the report output.
   const summary = ui.dataSummary;
   const accounts = data.accounts || [];
-  const income = getAccountValues(accounts, ["income"]);
+  const income = getRevenueValue(accounts);
   const expenses = getAccountValues(accounts, ["expense"]);
   const assets = getAccountValues(accounts, ["asset"]);
   const liabilities = getAccountValues(accounts, ["liability"]);
@@ -225,7 +235,7 @@ function renderReport(data, reportType) {
   // Build the main report card with KPIs and generated insights.
   const output = ui.reportOutput;
   const accounts = data.accounts || [];
-  const income = getAccountValues(accounts, ["income"]);
+  const income = getRevenueValue(accounts);
   const expenses = getAccountValues(accounts, ["expense"]);
   const grossProfit = income - expenses;
   const assets = getAccountValues(accounts, ["asset"]);
@@ -380,6 +390,63 @@ function generateCurrentReport() {
   setStatus(`Generated ${ui.reportTypeSelect.options[ui.reportTypeSelect.selectedIndex].text}.`);
 }
 
+function appendChatMessage(message, role = "assistant") {
+  const messageElement = document.createElement("div");
+  const textElement = document.createElement("p");
+  messageElement.className = `chat-message ${role}-message`;
+  textElement.textContent = message;
+  messageElement.appendChild(textElement);
+  ui.chatMessages.appendChild(messageElement);
+  ui.chatMessages.scrollTop = ui.chatMessages.scrollHeight;
+}
+
+function getChatResponse(question) {
+  const accounts = appState.data.accounts || [];
+  const revenue = getRevenueValue(accounts);
+  const expenses = getAccountValues(accounts, ["expense"]);
+  const profit = revenue - expenses;
+  const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+  const cash = accounts
+    .filter((account) => account.group === "asset" && /cash/i.test(account.name))
+    .reduce((sum, account) => sum + Number(account.value || 0), 0);
+  const assets = getAccountValues(accounts, ["asset"]);
+  const liabilities = getAccountValues(accounts, ["liability"]);
+  const normalizedQuestion = question.toLowerCase();
+
+  if (/cash|liquid|trésorerie|tresorerie/.test(normalizedQuestion)) {
+    return `Cash on hand is ${formatCurrency(cash)}. Total assets are ${formatCurrency(assets)} and liabilities are ${formatCurrency(liabilities)}.`;
+  }
+
+  if (/profit|margin|profitable|profitab|rentab|bénéfice|benefice/.test(normalizedQuestion)) {
+    return `Revenue is ${formatCurrency(revenue)} and expenses are ${formatCurrency(expenses)}, leaving ${formatCurrency(profit)} in calculated net profit. That is a ${margin.toFixed(1)}% profit margin.`;
+  }
+
+  if (/watch|risk|attention|surveill/.test(normalizedQuestion)) {
+    if (profit <= 0) return "Expenses currently exceed revenue. The priority is to understand the largest expense accounts and protect cash.";
+    if (liabilities > assets) return "The business is profitable, but liabilities exceed assets. Review upcoming obligations and near-term cash coverage.";
+    return `Profitability is positive at ${margin.toFixed(1)}%. Keep an eye on expenses, which are ${revenue ? ((expenses / revenue) * 100).toFixed(1) : 0}% of revenue, and maintain the ${formatCurrency(cash)} cash balance.`;
+  }
+
+  if (/revenue|sales|income|revenu|chiffre/.test(normalizedQuestion)) {
+    return `Reported revenue for ${appState.data.period} is ${formatCurrency(revenue)} across ${accounts.length} loaded accounts.`;
+  }
+
+  return `For ${appState.data.company}, I can help explain revenue (${formatCurrency(revenue)}), expenses (${formatCurrency(expenses)}), profit margin (${margin.toFixed(1)}%), cash, and balance-sheet position. Try asking about profitability, cash, or risks to watch.`;
+}
+
+function submitChatQuestion(question) {
+  const cleanQuestion = question.trim();
+  if (!cleanQuestion) return;
+  appendChatMessage(cleanQuestion, "user");
+  appendChatMessage(getChatResponse(cleanQuestion));
+  ui.chatInput.value = "";
+  ui.chatInput.focus();
+}
+
+function initializeChat() {
+  appendChatMessage("Hi — I’m your local finance assistant. Ask me about the financial data currently loaded in this report.");
+}
+
 ui.fileInput.addEventListener("change", handleFileUpload);
 ui.generateButton.addEventListener("click", generateCurrentReport);
 ui.sampleButton.addEventListener("click", () => {
@@ -389,5 +456,15 @@ ui.sampleButton.addEventListener("click", () => {
   setStatus("Loaded the sample financial dataset.");
 });
 ui.reportTypeSelect.addEventListener("change", generateCurrentReport);
+ui.chatForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  submitChatQuestion(ui.chatInput.value);
+});
+ui.suggestionButtons.forEach((button) => {
+  button.addEventListener("click", () => submitChatQuestion(button.dataset.question || ""));
+});
 
-window.addEventListener("DOMContentLoaded", loadInitialData);
+window.addEventListener("DOMContentLoaded", () => {
+  loadInitialData();
+  initializeChat();
+});

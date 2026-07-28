@@ -89,6 +89,28 @@
           <div id="reportOutput" class="report-output"></div>
         </section>
       </main>
+
+      <section class="panel chat-panel" aria-labelledby="chatTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="panel-kicker">Finance assistant</p>
+            <h2 id="chatTitle">Ask about your numbers</h2>
+          </div>
+          <div class="panel-icon" aria-hidden="true">💬</div>
+        </div>
+        <p class="helper-text">Ask a question about the currently loaded report. Your data stays in this browser.</p>
+        <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Finance assistant conversation"></div>
+        <div class="suggestion-row" aria-label="Suggested questions">
+          <button class="suggestion-btn" type="button" data-question="How profitable are we?">Profitability</button>
+          <button class="suggestion-btn" type="button" data-question="What is our cash position?">Cash position</button>
+          <button class="suggestion-btn" type="button" data-question="What should I watch?">What to watch</button>
+        </div>
+        <form id="chatForm" class="chat-form">
+          <label class="sr-only" for="chatInput">Ask a financial question</label>
+          <input id="chatInput" type="text" maxlength="300" placeholder="e.g. What is our profit margin?" autocomplete="off" />
+          <button class="primary-btn chat-send" type="submit">Send</button>
+        </form>
+      </section>
     </div>
 
     <footer class="site-footer">
