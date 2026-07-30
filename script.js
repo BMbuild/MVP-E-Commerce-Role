@@ -551,23 +551,169 @@ function appendChatMessage(message, role = "assistant") {
   ui.chatMessages.scrollTop = ui.chatMessages.scrollHeight;
 }
 
+function getCatalogChatResponse(question, products) {
+  const q = question.toLowerCase().trim();
+  const metrics = getCatalogMetrics(products);
+
+  const shortName = (name) => {
+    if (!name) return "Unknown Product";
+    return name.length > 65 ? `${name.slice(0, 62)}...` : name;
+  };
+
+  // 1. ALL CATEGORIES / LIST CATEGORIES / BREAKDOWN BY CATEGORY
+  if (
+    /all cat|list cat|categories|by category|toutes les cat|liste des cat|breakdown|répartition|repartition/.test(q) ||
+    (q.includes("cat") && (q.includes("all") || q.includes("list") || q.includes("show") || q.includes("actual")))
+  ) {
+    const sortedCats = Object.entries(metrics.categories).sort((a, b) => b[1] - a[1]);
+    const topList = sortedCats.slice(0, 6).map(([cat, count]) => `• ${cat}: ${count.toLocaleString()} products (${((count / products.length) * 100).toFixed(1)}%)`).join("\n");
+    return `Category breakdown across ${metrics.categoryCount} total categories:\n${topList}`;
+  }
+
+  // 2. LOWEST SALES / LEAST REVIEWS / FEWEST RATINGS
+  if (/lowest sales|least sales|fewest sales|least review|lowest review|least rated|fewest rating|moins vendu|moins de ventes|moins d'avis/.test(q)) {
+    const validCountProds = products
+      .map((p) => ({ ...p, rCount: parsePrice(p.rating_count) }))
+      .filter((p) => p.rCount > 0)
+      .sort((a, b) => a.rCount - b.rCount);
+
+    if (validCountProds.length) {
+      const lowest = validCountProds.slice(0, 3).map((p) => `• "${shortName(p.product_name)}" (${p.rCount.toLocaleString()} reviews, ${p.discounted_price})`).join("\n");
+      return `Products with the lowest review/sales volume:\n${lowest}`;
+    }
+  }
+
+  // 3. HIGHEST SALES / MOST POPULAR / TOP SALES / MOST REVIEWS
+  if (/highest sales|most sales|top sales|most review|most popular|best seller|bestseller|plus vendu|plus de ventes|plus populaire|plus d'avis/.test(q)) {
+    const validCountProds = products
+      .map((p) => ({ ...p, rCount: parsePrice(p.rating_count) }))
+      .sort((a, b) => b.rCount - a.rCount);
+
+    if (validCountProds.length) {
+      const topSales = validCountProds.slice(0, 3).map((p) => `• "${shortName(p.product_name)}" (${p.rCount.toLocaleString()} reviews, ${p.discounted_price})`).join("\n");
+      return `Top products by review/sales volume:\n${topSales}`;
+    }
+  }
+
+  // 4. HIGHEST RATED / BEST PRODUCTS
+  if (/best rated|highest rating|top rated|best product|highest score|highest rated|meilleur|mieux noté|meilleure note/.test(q)) {
+    const sortedByRating = [...products]
+      .map((p) => ({ ...p, numRating: Number(p.rating) || 0 }))
+      .sort((a, b) => b.numRating - a.numRating);
+
+    const topRated = sortedByRating.slice(0, 3).map((p) => `• "${shortName(p.product_name)}" — ⭐ ${p.rating}/5 (${p.discounted_price})`).join("\n");
+    return `Highest-rated products in the catalog:\n${topRated}`;
+  }
+
+  // 5. LOWEST RATED / WORST PRODUCTS
+  if (/lowest rating|worst rated|lowest score|worst product|plus mal noté|pire|mauvaise note|low rating/.test(q)) {
+    const sortedByRating = [...products]
+      .map((p) => ({ ...p, numRating: Number(p.rating) || 5 }))
+      .filter((p) => p.numRating > 0)
+      .sort((a, b) => a.numRating - b.numRating);
+
+    const worstRated = sortedByRating.slice(0, 3).map((p) => `• "${shortName(p.product_name)}" — ⭐ ${p.rating}/5 (${p.discounted_price})`).join("\n");
+    return `Lowest-rated products in the catalog:\n${worstRated}`;
+  }
+
+  // 6. MOST EXPENSIVE / HIGHEST PRICE
+  if (/most expensive|highest price|highest cost|priciest|plus cher|prix le plus élevé/.test(q)) {
+    const sortedByPrice = [...products]
+      .map((p) => ({ ...p, numPrice: parsePrice(p.discounted_price) }))
+      .sort((a, b) => b.numPrice - a.numPrice);
+
+    const priciest = sortedByPrice.slice(0, 3).map((p) => `• "${shortName(p.product_name)}" — ${p.discounted_price} (${p.discount_percentage} off)`).join("\n");
+    return `Most expensive products in the catalog:\n${priciest}`;
+  }
+
+  // 7. CHEAPEST / LOWEST PRICE
+  if (/cheapest|lowest price|least expensive|lowest cost|moins cher|prix le plus bas/.test(q)) {
+    const sortedByPrice = [...products]
+      .map((p) => ({ ...p, numPrice: parsePrice(p.discounted_price) }))
+      .filter((p) => p.numPrice > 0)
+      .sort((a, b) => a.numPrice - b.numPrice);
+
+    const cheapest = sortedByPrice.slice(0, 3).map((p) => `• "${shortName(p.product_name)}" — ${p.discounted_price} (${p.discount_percentage} off)`).join("\n");
+    return `Cheapest products in the catalog:\n${cheapest}`;
+  }
+
+  // 8. BIGGEST DISCOUNT / BEST DEALS
+  if (/biggest discount|best discount|highest discount|best deal|deals|meilleure réduction|plus grande remise|plus forte réduction/.test(q)) {
+    const sortedByDiscount = [...products]
+      .map((p) => ({ ...p, numDiscount: parsePercent(p.discount_percentage) }))
+      .sort((a, b) => b.numDiscount - a.numDiscount);
+
+    const topDeals = sortedByDiscount.slice(0, 3).map((p) => `• "${shortName(p.product_name)}" — ${p.discount_percentage} off (${p.discounted_price})`).join("\n");
+    return `Products with the largest discounts:\n${topDeals}`;
+  }
+
+  // 9. SEARCH PRODUCT NAME / CATEGORY KEYWORD MATCH
+  const keywords = q
+    .replace(/[^a-z0-9\s]/gi, "")
+    .split(/\s+/)
+    .filter(
+      (w) =>
+        w.length > 2 &&
+        ![
+          "show",
+          "me", "the",
+          "actual",
+          "products",
+          "product",
+          "all",
+          "which",
+          "what",
+          "how",
+          "list",
+          "about",
+          "for",
+          "with",
+          "have",
+          "has",
+          "find",
+          "search",
+          "get",
+          "give",
+          "display",
+          "tell",
+          "donne",
+          "moi",
+          "les",
+          "des",
+          "pour",
+          "dans"
+        ].includes(w)
+    );
+
+  if (keywords.length > 0) {
+    const matches = products.filter((p) => {
+      const haystack = `${p.product_name} ${p.category} ${p.about_product || ""}`.toLowerCase();
+      return keywords.some((kw) => haystack.includes(kw));
+    });
+
+    if (matches.length > 0) {
+      const matchSample = matches.slice(0, 4).map((p) => `• "${shortName(p.product_name)}" — ${p.discounted_price} (⭐ ${p.rating})`).join("\n");
+      return `Found ${matches.length} products matching "${keywords.join(" ")}":\n${matchSample}`;
+    }
+  }
+
+  // 10. GENERAL TOPIC OVERVIEWS (RATING, PRICE, WATCH)
+  if (/rating|review|note|avis/.test(q)) {
+    return `The catalog averages ${metrics.averageRating.toFixed(1)} out of 5 across ${metrics.productCount.toLocaleString()} products, with ${metrics.ratingCount.toLocaleString("en-IN")} customer ratings recorded.`;
+  }
+  if (/price|prix|discount|reduction|réduction/.test(q)) {
+    return `Average discounted price: ${formatRupees(metrics.averagePrice)}. Average discount: ${metrics.averageDiscount.toFixed(0)}%. Try asking "most expensive" or "cheapest".`;
+  }
+  if (/watch|risk|attention|surveill/.test(q)) {
+    return `Watch category concentration in ${metrics.topCategory[0]} (${((metrics.topCategory[1] / metrics.productCount) * 100).toFixed(1)}% of products) and verify products rated below 3.5 ⭐.`;
+  }
+
+  return `I can answer specific questions about ${metrics.productCount.toLocaleString()} products! Try asking:\n• "List all categories"\n• "Which product has the highest/lowest sales?"\n• "Highest rated products"\n• "Most expensive product"\n• Search for a keyword like "cable" or "iPhone"`;
+}
+
 function getChatResponse(question) {
   if (appState.data.type === "amazon_catalog") {
-    const metrics = getCatalogMetrics(appState.data.products);
-    const normalizedQuestion = question.toLowerCase();
-    if (/rating|review|note|avis/.test(normalizedQuestion)) {
-      return `The catalog averages ${metrics.averageRating.toFixed(1)} out of 5, based on ${metrics.ratingCount.toLocaleString("en-IN")} recorded customer ratings.`;
-    }
-    if (/category|categorie|catégorie|product|produit/.test(normalizedQuestion)) {
-      return `${metrics.topCategory[0]} is the largest top-level category, with ${metrics.topCategory[1].toLocaleString()} of ${metrics.productCount.toLocaleString()} products.`;
-    }
-    if (/price|prix|discount|reduction|réduction/.test(normalizedQuestion)) {
-      return `The average discounted price is ${formatRupees(metrics.averagePrice)} and the average listed discount is ${metrics.averageDiscount.toFixed(0)}%.`;
-    }
-    if (/watch|risk|attention|surveill/.test(normalizedQuestion)) {
-      return `Watch catalog concentration in ${metrics.topCategory[0]}, which represents ${((metrics.topCategory[1] / metrics.productCount) * 100).toFixed(1)}% of listed products, and validate low-rated products before promotion.`;
-    }
-    return `I can help analyze ${metrics.productCount.toLocaleString()} Amazon products: average price (${formatRupees(metrics.averagePrice)}), average rating (${metrics.averageRating.toFixed(1)}/5), discounts, and categories.`;
+    return getCatalogChatResponse(question, appState.data.products);
   }
   const accounts = appState.data.accounts || [];
   const revenue = getRevenueValue(accounts);

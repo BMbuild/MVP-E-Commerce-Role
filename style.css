@@ -522,6 +522,7 @@ select:focus-visible {
 
 .chat-message p {
   margin: 0;
+  white-space: pre-wrap;
 }
 
 .assistant-message {
