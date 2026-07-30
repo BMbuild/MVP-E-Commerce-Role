@@ -19,20 +19,14 @@
 body {
   margin: 0;
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-  background: linear-gradient(135deg, #f8fbff 0%, #f4f7fb 100%);
+  background: var(--bg);
   color: var(--text);
   min-height: 100vh;
   line-height: 1.5;
 }
 
 .page-bg {
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 22%),
-    radial-gradient(circle at bottom right, rgba(15, 118, 110, 0.12), transparent 20%);
-  pointer-events: none;
-  z-index: -1;
+  display: none;
 }
 
 .app-shell {
