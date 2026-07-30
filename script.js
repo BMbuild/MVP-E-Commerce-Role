@@ -43,14 +43,15 @@ function formatCurrency(value) {
 }
 
 function parseCsv(text) {
+  const cleanText = (text || "").replace(/^\ufeff/, "");
   const rows = [];
   let row = [];
   let value = "";
   let insideQuotes = false;
 
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
-    const nextCharacter = text[index + 1];
+  for (let index = 0; index < cleanText.length; index += 1) {
+    const character = cleanText[index];
+    const nextCharacter = cleanText[index + 1];
     if (character === '"' && insideQuotes && nextCharacter === '"') {
       value += '"';
       index += 1;
@@ -75,7 +76,7 @@ function parseCsv(text) {
   }
   if (!rows.length) return [];
 
-  const headers = rows[0].map((header) => header.trim().toLowerCase());
+  const headers = rows[0].map((header) => header.replace(/^\ufeff/, "").replace(/^["']|["']$/g, "").trim().toLowerCase());
   return rows.slice(1).map((values) => Object.fromEntries(headers.map((header, index) => [header, values[index] || ""])));
 }
 
@@ -86,6 +87,14 @@ function normalizeData(rawData) {
   }
 
   if (Array.isArray(rawData)) {
+    if (rawData.length && (rawData[0].product_id || rawData[0].product_name || rawData[0].discounted_price)) {
+      return {
+        type: "amazon_catalog",
+        company: "Amazon Product Catalog",
+        period: `${rawData.length.toLocaleString()} products`,
+        products: rawData
+      };
+    }
     return {
       company: "Uploaded Company",
       period: "Custom Period",
@@ -114,6 +123,15 @@ function normalizeData(rawData) {
   }
 
   if (rawData && typeof rawData === "object") {
+    if (rawData.products && Array.isArray(rawData.products)) {
+      return {
+        type: "amazon_catalog",
+        company: rawData.company || "Amazon Product Catalog",
+        period: rawData.period || `${rawData.products.length.toLocaleString()} products`,
+        products: rawData.products
+      };
+    }
+
     if (rawData.accounts && Array.isArray(rawData.accounts)) {
       return {
         company: rawData.company || "Uploaded Company",
@@ -141,7 +159,11 @@ function normalizeData(rawData) {
 
   const csvRows = parseCsv(typeof rawData === "string" ? rawData : "");
   if (csvRows.length) {
-    if (csvRows[0].product_id && csvRows[0].discounted_price) {
+    const firstRowKeys = Object.keys(csvRows[0]);
+    const isCatalog = firstRowKeys.some((k) =>
+      ["product_id", "product_name", "discounted_price", "actual_price", "rating", "category"].includes(k)
+    );
+    if (isCatalog) {
       return {
         type: "amazon_catalog",
         company: "Amazon Product Catalog",
@@ -493,8 +515,11 @@ function handleFileUpload(event) {
       const content = e.target.result;
       const parsedData = normalizeData(content);
 
-      if (!parsedData || !parsedData.accounts || !parsedData.accounts.length) {
-        throw new Error("No valid accounts found");
+      const hasAccounts = parsedData && Array.isArray(parsedData.accounts) && parsedData.accounts.length > 0;
+      const hasProducts = parsedData && Array.isArray(parsedData.products) && parsedData.products.length > 0;
+
+      if (!parsedData || (!hasAccounts && !hasProducts)) {
+        throw new Error("No valid data found");
       }
 
       appState.data = parsedData;
@@ -502,7 +527,7 @@ function handleFileUpload(event) {
       renderReport(appState.data, ui.reportTypeSelect.value);
       setStatus(`Loaded ${file.name} successfully.`);
     } catch (error) {
-      setStatus(`Could not parse ${file.name}. Use JSON or CSV with name, value, and group columns.`, false);
+      setStatus(`Could not parse ${file.name}. Upload a product catalog CSV/JSON or financial data file.`, false);
     }
   };
   reader.readAsText(file);
