@@ -1,112 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Amazon Catalog Insights</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="page-bg" aria-hidden="true"></div>
-    <div class="app-shell">
-      <header class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">⚡ AI-ready product analytics workspace</p>
-          <h1>Turn Amazon catalog data into clear product insights.</h1>
-          <p class="subtitle">
-            Explore pricing, ratings, discounts, and category performance from the Amazon product dataset.
-          </p>
-          <div class="hero-pills" aria-label="Key highlights">
-            <span>📁 Amazon CSV loaded</span>
-            <span>⭐ Rating insights</span>
-            <span>🏷️ Price analysis</span>
-          </div>
-        </div>
-        <div class="hero-card">
-          <p class="hero-card-title">Ready to explore</p>
-          <div class="hero-card-metric">
-            <strong>1,465</strong>
-            <span>products to explore</span>
-          </div>
-          <div class="hero-card-metric">
-            <strong>16</strong>
-            <span>dataset columns</span>
-          </div>
-        </div>
-      </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brahim | Portfolio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="brand">
+        <span class="brand-icon">⚡</span>
+        <span class="brand-name">Brahim<span class="accent-dot">.</span></span>
+      </a>
 
-      <main class="content-grid">
-        <section class="panel control-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="panel-kicker">Workflow</p>
-          <h2>Explore product data</h2>
-            </div>
-            <div class="panel-icon">🧾</div>
-          </div>
+      <nav class="nav-menu">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#strengths" class="nav-link">What I Bring</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#skills" class="nav-link">Skills</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </nav>
 
-          <label class="field-label" for="uploadData">📂 Upload product data</label>
-          <input id="uploadData" type="file" accept=".json,.csv" aria-describedby="statusMessage" />
-          <p class="helper-text">The Amazon dataset is loaded by default. Upload a CSV or JSON file to analyze another catalog.</p>
-
-          <label class="field-label" for="reportType">📊 Analysis type</label>
-          <select id="reportType">
-            <option value="income">Catalog Overview</option>
-            <option value="balance">Category Analysis</option>
-            <option value="cashflow">Customer Sentiment</option>
-          </select>
-
-          <div class="button-row">
-            <button id="generateReport" class="primary-btn" type="button">Generate analysis</button>
-            <button id="loadSample" class="secondary-btn" type="button">Reload Amazon data</button>
-          </div>
-
-          <div id="statusMessage" class="status-message success" role="status" aria-live="polite">
-            Ready to analyze the Amazon catalog.
-          </div>
-        </section>
-
-        <section class="panel results-panel">
-          <div class="panel-heading">
-            <div>
-              <p class="panel-kicker">Preview</p>
-              <h2>Report output</h2>
-            </div>
-            <div class="panel-icon">📈</div>
-          </div>
-          <div id="dataSummary" class="summary-card"></div>
-          <div id="reportOutput" class="report-output"></div>
-        </section>
-      </main>
-
-      <section class="panel chat-panel" aria-labelledby="chatTitle">
-        <div class="panel-heading">
-          <div>
-            <p class="panel-kicker">Finance assistant</p>
-            <h2 id="chatTitle">Ask about the catalog</h2>
-          </div>
-          <div class="panel-icon" aria-hidden="true">💬</div>
-        </div>
-        <p class="helper-text">Ask about the loaded products. Your data stays in this browser.</p>
-        <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Finance assistant conversation"></div>
-        <div class="suggestion-row" aria-label="Suggested questions">
-          <button class="suggestion-btn" type="button" data-question="What is the average rating?">Average rating</button>
-          <button class="suggestion-btn" type="button" data-question="Which category has the most products?">Top category</button>
-          <button class="suggestion-btn" type="button" data-question="What should I watch?">What to watch</button>
-        </div>
-        <form id="chatForm" class="chat-form">
-          <label class="sr-only" for="chatInput">Ask a financial question</label>
-          <input id="chatInput" type="text" maxlength="300" placeholder="e.g. Which category has the most products?" autocomplete="off" />
-          <button class="primary-btn chat-send" type="submit">Send</button>
-        </form>
-      </section>
+      <div class="nav-actions">
+        <a href="https://github.com/BMbuild/MVP-E-Commerce-Role" target="_blank" rel="noreferrer" class="github-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
     </div>
+  </header>
 
-    <footer class="site-footer">
-      <p>Amazon Catalog Insights</p>
-      <a href="https://github.com/BMbuild/MVP-E-Commerce-Role" target="_blank" rel="noreferrer" aria-label="View project repository on GitHub">View on GitHub</a>
-    </footer>
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-container">
+        <div class="hero-avatar-wrapper">
+          <div class="avatar-ring">
+            <img id="profileImage" src="profile.jpg" alt="Brahim - Professional Profile Photo" class="hero-avatar" />
+            <span class="status-badge" title="Available for technology opportunities"></span>
+          </div>
+          <div class="upload-photo-control">
+            <label for="photoInput" class="upload-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              <span>Change Photo</span>
+            </label>
+            <input type="file" id="photoInput" accept="image/*" class="sr-only" />
+          </div>
+        </div>
 
-    <script src="script.js"></script>
-  </body>
+        <div class="hero-text">
+          <div class="badge-pill">🚀 Tech Learner & Problem Solver</div>
+          <h1>Building practical solutions through technology and problem solving.</h1>
+          <p class="hero-description">
+            I am a technology enthusiast focused on analyzing challenges, mastering modern tools, and crafting clean, efficient, and impactful digital solutions.
+          </p>
+
+          <div class="hero-cta">
+            <a href="#projects" class="btn btn-primary">View My Projects</a>
+            <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Me Section -->
+    <section id="about" class="section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">Background</span>
+          <h2>About Me</h2>
+        </div>
+        <div class="about-card">
+          <p>
+            I am passionate about technology, continuous learning, and improving the way people interact with digital solutions.
+          </p>
+          <p>
+            My approach combines strategic thinking, independence, and resilience. I enjoy understanding complex problems, breaking them into manageable components, and building solutions that provide long-term value and high efficiency.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- What I Bring Section -->
+    <section id="strengths" class="section bg-surface">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">Value & Approach</span>
+          <h2>What I Bring</h2>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="feature-card">
+            <div class="card-icon">🧠</div>
+            <h3>Strategic Problem Solving</h3>
+            <p>
+              I analyze complex problems systematically and develop practical, long-term solutions instead of focusing only on quick surface-level fixes.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="card-icon">🛡️</div>
+            <h3>Independent & Reliable Work</h3>
+            <p>
+              I stay calm under pressure, take full ownership of technical challenges, and consistently deliver high-quality, reliable results.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="card-icon">⚡</div>
+            <h3>Continuous Learning</h3>
+            <p>
+              I quickly learn and master new technologies, tools, and frameworks, applying them directly to improve project outcomes and team efficiency.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">Portfolio Showcase</span>
+          <h2>Projects</h2>
+        </div>
+
+        <div class="grid grid-3">
+          <!-- Project 1 -->
+          <div class="project-card">
+            <div class="project-header">
+              <span class="project-type">E-Commerce & Data</span>
+              <h3>Amazon Catalog Insights</h3>
+            </div>
+            <p class="project-description">
+              A lightweight, client-side web application designed to analyze product pricing, customer ratings, listed discounts, and category performance from Amazon dataset files directly in the browser.
+            </p>
+            <div class="tech-tags">
+              <span>HTML5</span>
+              <span>CSS3</span>
+              <span>JavaScript</span>
+              <span>CSV Analytics</span>
+            </div>
+            <div class="project-links">
+              <a href="https://bmbuild.github.io/MVP-E-Commerce-Role/" target="_blank" rel="noreferrer" class="project-link">
+                <span>Live Demo</span> ↗
+              </a>
+              <a href="https://github.com/BMbuild/MVP-E-Commerce-Role" target="_blank" rel="noreferrer" class="project-link secondary">
+                <span>Source Code</span> ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 2 -->
+          <div class="project-card">
+            <div class="project-header">
+              <span class="project-type">Web Utility</span>
+              <h3>Kilometer Converter</h3>
+            </div>
+            <p class="project-description">
+              A clean, user-friendly distance measurement conversion utility that transforms values between kilometers, miles, meters, and feet with instant real-time calculation.
+            </p>
+            <div class="tech-tags">
+              <span>HTML5</span>
+              <span>CSS3</span>
+              <span>JavaScript</span>
+              <span>UI/UX</span>
+            </div>
+            <div class="project-links">
+              <a href="#contact" class="project-link">
+                <span>View Details</span> ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Project 3 -->
+          <div class="project-card">
+            <div class="project-header">
+              <span class="project-type">Personal Showcase</span>
+              <h3>Personal Portfolio Website</h3>
+            </div>
+            <p class="project-description">
+              A modern, responsive personal portfolio built to highlight technical skills, project accomplishments, strategic strengths, and contact avenues.
+            </p>
+            <div class="tech-tags">
+              <span>HTML5</span>
+              <span>CSS3</span>
+              <span>JavaScript</span>
+              <span>Responsive Design</span>
+            </div>
+            <div class="project-links">
+              <a href="https://digital-lab-kappa.vercel.app/" target="_blank" rel="noreferrer" class="project-link">
+                <span>Vercel Site</span> ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section bg-surface">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">Technical Toolkit</span>
+          <h2>Skills & Expertise</h2>
+        </div>
+
+        <div class="skills-grid">
+          <div class="skill-badge"><span class="skill-icon">🌐</span> HTML5</div>
+          <div class="skill-badge"><span class="skill-icon">🎨</span> CSS3</div>
+          <div class="skill-badge"><span class="skill-icon">⚡</span> JavaScript</div>
+          <div class="skill-badge"><span class="skill-icon">🔀</span> Git</div>
+          <div class="skill-badge"><span class="skill-icon">🐙</span> GitHub</div>
+          <div class="skill-badge"><span class="skill-icon">📱</span> Responsive Web Design</div>
+          <div class="skill-badge"><span class="skill-icon">🧩</span> Strategic Problem Solving</div>
+          <div class="skill-badge"><span class="skill-icon">🔍</span> Critical Thinking</div>
+          <div class="skill-badge"><span class="skill-icon">💻</span> Technical Analysis</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+      <div class="section-container">
+        <div class="section-header">
+          <span class="section-tag">Get In Touch</span>
+          <h2>Contact Me</h2>
+        </div>
+
+        <div class="contact-wrapper">
+          <form id="contactForm" class="contact-form">
+            <div class="form-group">
+              <label for="contactName">Your Name</label>
+              <input type="text" id="contactName" placeholder="Enter your full name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail">Your Email</label>
+              <input type="email" id="contactEmail" placeholder="name@example.com" required />
+            </div>
+
+            <div class="form-group">
+              <label for="contactMessage">Your Message</label>
+              <textarea id="contactMessage" rows="5" placeholder="Write your message here..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">
+              <span>Send Message</span> 🚀
+            </button>
+
+            <div id="contactStatus" class="contact-status" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p>© 2026 Brahim. Built with HTML, CSS, and JavaScript.</p>
+      <div class="footer-links">
+        <a href="https://github.com/BMbuild/MVP-E-Commerce-Role" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
 </html>
