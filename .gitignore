@@ -1,0 +1,18 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+
+# Node (in case npx/serve or other tooling caches anything locally)
+node_modules/
+npm-debug.log*
+
+# Python (legacy, in case a venv gets recreated by accident)
+venv/
+.venv/
+__pycache__/
+*.pyc
